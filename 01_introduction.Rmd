@@ -1,0 +1,13 @@
+# Introduction
+
+```{r example, fig.cap="A test figure"}
+plot(cars)
+```
+
+```{r example2}
+plot(cars)
+```
+
+```{r example3, fig.cap="A test figure"}
+plot(cars)
+```

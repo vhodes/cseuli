@@ -1,0 +1,26 @@
+# Methods
+
+```{r survey_samples}
+library(tidyverse)
+j <- d$survey_index %>%
+  #group_by(survey_series_id) %>% 
+  #arrange(survey_series_id, year) %>% 
+  dplyr::filter(survey_series_id == 7, year %in% 1982:1990) %>% 
+  transmute(year, biomass = biomass / 1000, lowerci = lowerci / 1000, upperci = upperci / 1000) %>% 
+  mutate(standard_biomass = biomass /sum(biomass))
+
+j$biomass <- gfutilities::f(j$biomass, 2)
+j$lowerci <- gfutilities::f(j$lowerci, 2)
+j$upperci <- gfutilities::f(j$upperci, 2)
+
+jj <- j %>% 
+  transmute(Year = year, `Biomass (t)` = biomass, `Lower CI` = lowerci, `Upper CI` = upperci, `Standard biomass` = standard_biomass)
+csasdown::csas_table(jj, align = c("l","r","r","r","r"), caption = "Example table")
+```
+
+In the final year of the survey, `r max(j$year)`, the biomass estimate was `r j$biomass[which(j$year==max(j$year))]`.
+
+See Figure \@ref(fig:example) for the first figure example.
+See Table \@ref(tab:survey_samples) for the first table.
+
+
