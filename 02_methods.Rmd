@@ -16,15 +16,48 @@ cnt_mat <- nrth %>%
   group_by(year, month) %>% 
   summarize(cnt = n()) %>% 
   ungroup()
-  
+
+cnt_weight <- nrth %>%
+   dplyr::filter(!is.na(weight),
+                weight != 0) %>% 
+  group_by(year, month) %>% 
+  summarize(cnt = n()) %>% 
+  ungroup()
+
+cnt_sex <- nrth %>%
+   dplyr::filter(!is.na(sex),
+                sex != 0) %>% 
+  group_by(year, month) %>% 
+  summarize(cnt = n()) %>% 
+  ungroup()
+# joins length and maturity and creates a table in the document  
 len_mat_tbl <- left_join(cnt_len, cnt_mat, by = c("year", "month"))
 len_mat_tbl_out <- len_mat_tbl %>% 
    transmute(Year = year, 
              Month = month,
              `Number of lengths` = cnt.x,
              `Number of maturities` = cnt.y)
-csasdown::csas_table(len_mat_tbl_out, align = c("c","c","r","r"), caption = "Number of lengths and maturities")
-     
+#csasdown::csas_table(len_mat_tbl_out, align = c("c","c","r","r"), caption = "Number of lengths and maturities")
+
+# joins the weight to Maturity and length
+morpho_table <- left_join(cnt_weight, len_mat_tbl,  by =c("year", "month"))
+morpho_table2 <- left_join(cnt_sex, morpho_table,  by = c("year", "month"))
+
+# renames variables in table
+morpho_table2_out <- morpho_table2 %>% 
+   transmute(Year = year, 
+             Month = month,
+             `Length` = cnt.x,
+             `Weight` = cnt.y,
+             `Maturity` = cnt.y.y,
+             `Sex` = cnt.x.x)
+csasdown::csas_table(morpho_table2_out, align = c("c","c","r","r","r","r"), caption = "Count of Collected Eulachon Attributes.  Length was collected in (mm); weight in (g)") 
+
+
+
+
+# biomass table example
+  
 j <- d$survey_index %>%
   #group_by(survey_series_id) %>%
   #arrange(survey_series_id, year) %>%
