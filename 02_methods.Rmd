@@ -1,21 +1,44 @@
 # Methods
 
 ```{r survey_samples, results = 'asis'}
+d <- readRDS(here::here("data/Eulachon.rds"))
+nrth <- d$survey_samples %>% dplyr::filter(survey_series_desc == "Eulachon Migration Study Bottom Trawl (North)") 
 
+cnt_len <- nrth %>% 
+  dplyr::filter(!is.na(length)) %>% 
+  group_by(year, month) %>% 
+  summarize(cnt = n()) %>% 
+  ungroup()
+  
+cnt_mat <- nrth %>% 
+  dplyr::filter(!is.na(maturity_code),
+                maturity_code != 0) %>% 
+  group_by(year, month) %>% 
+  summarize(cnt = n()) %>% 
+  ungroup()
+  
+len_mat_tbl <- left_join(cnt_len, cnt_mat, by = c("year", "month"))
+len_mat_tbl_out <- len_mat_tbl %>% 
+   transmute(Year = year, 
+             Month = month,
+             `Number of lengths` = cnt.x,
+             `Number of maturities` = cnt.y)
+csasdown::csas_table(len_mat_tbl_out, align = c("c","c","r","r"), caption = "Number of lengths and maturities")
+     
 j <- d$survey_index %>%
-  #group_by(survey_series_id) %>% 
-  #arrange(survey_series_id, year) %>% 
-  dplyr::filter(survey_series_id == 7, year %in% 1982:1990) %>% 
-  transmute(year, biomass = biomass / 1000, lowerci = lowerci / 1000, upperci = upperci / 1000) %>% 
+  #group_by(survey_series_id) %>%
+  #arrange(survey_series_id, year) %>%
+  dplyr::filter(survey_series_id == 7, year %in% 1982:1990) %>%
+  transmute(year, biomass = biomass / 1000, lowerci = lowerci / 1000, upperci = upperci / 1000) %>%
   mutate(standard_biomass = biomass /sum(biomass))
 
 j$biomass <- gfutilities::f(j$biomass, 2)
 j$lowerci <- gfutilities::f(j$lowerci, 2)
 j$upperci <- gfutilities::f(j$upperci, 2)
 
-jj <- j %>% 
-  transmute(Year = year, `Biomass (t)` = biomass, `Lower CI` = lowerci, `Upper CI` = upperci, `Standard biomass` = standard_biomass)
-csasdown::csas_table(jj, align = c("l","r","r","r","r"), caption = "Example table")
+# jj <- j %>% 
+#   transmute(Year = year, `Biomass (t)` = biomass, `Lower CI` = lowerci, `Upper CI` = upperci, `Standard biomass` = standard_biomass)
+#csasdown::csas_table(jj, align = c("l","r","r","r","r"), caption = "Example table")
 ```
 
 In the final year of the survey, `r max(j$year)`, the biomass estimate was `r j$biomass[which(j$year==max(j$year))]`.

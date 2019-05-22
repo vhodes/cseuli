@@ -76,5 +76,4 @@ if (!file.exists(here::here("data/Eulachon.rds"))){
   d$catch <- gfdata::get_catch(species_name)
   saveRDS(d, here::here("data/Eulachon.rds"))
 }
-d <- readRDS(here::here("data/Eulachon.rds"))
 ```
