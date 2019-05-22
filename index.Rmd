@@ -63,16 +63,17 @@ knitr::opts_chunk$set(
 
 ```{r load-libraries, cache=FALSE}
 # add other packages here:
+library(tidyverse)
 library(csasdown)
 ```
 ```{r load-data}
 species_name <- "eulachon"
 if (!file.exists(here::here("data/Eulachon.rds"))){
   d <- list()
-  d$commercial_samples <- gfplot::get_commercial_samples(species_name)
-  d$survey_samples <- gfplot::get_survey_samples(species_name)
-  d$survey_index <- gfplot::get_survey_index(species_name)
-  d$catch <- gfplot::get_catch(species_name)
+  d$commercial_samples <- gfdata::get_commercial_samples(species_name)
+  d$survey_samples <- gfdata::get_survey_samples(species_name)
+  d$survey_index <- gfdata::get_survey_index(species_name)
+  d$catch <- gfdata::get_catch(species_name)
   saveRDS(d, here::here("data/Eulachon.rds"))
 }
 d <- readRDS(here::here("data/Eulachon.rds"))

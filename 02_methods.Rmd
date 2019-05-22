@@ -1,7 +1,7 @@
 # Methods
 
-```{r survey_samples}
-library(tidyverse)
+```{r survey_samples, results = 'asis'}
+
 j <- d$survey_index %>%
   #group_by(survey_series_id) %>% 
   #arrange(survey_series_id, year) %>% 
