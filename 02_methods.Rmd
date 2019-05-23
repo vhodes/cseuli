@@ -1,6 +1,8 @@
 # Methods
 
+
 ```{r survey_samples, results = 'asis'}
+#brings in the data.  if the data is not complete have to go to index and re-run the code
 d <- readRDS(here::here("data/Eulachon.rds"))
 nrth <- d$survey_samples %>% dplyr::filter(survey_series_desc == "Eulachon Migration Study Bottom Trawl (North)") 
 
@@ -52,9 +54,49 @@ morpho_table2_out <- morpho_table2 %>%
              `Maturity` = cnt.y.y,
              `Sex` = cnt.x.x)
 csasdown::csas_table(morpho_table2_out, align = c("c","c","r","r","r","r"), caption = "Count of Collected Eulachon Attributes.  Length was collected in (mm); weight in (g)") 
+# summarize length data
+len_sum<-nrth %>% 
+  dplyr::filter(!is.na(length)) %>% 
+  group_by(year, month) %>% 
+    summarise(avg_length = mean(length), 
+             min_length = min(length),
+            max_length = max(length),
+            std_dev = sd(length),
+              total = n())
+mutate(len_sum,avg_length = round(avg_length, 2))
+ 
+csasdown::csas_table(len_sum, align = c("c","c","r","r","r","r","r"), caption = "Summary statistics length (cm)") 
+
+#Cumulative length-frequency (all surveys put together) Chatham Sound
+ 
+  ggplot(nrth, aes(x=length)) + geom_histogram(binwidth=1,colour="grey")
+hp<-ggplot(nrth, aes(x=length)) + geom_histogram(binwidth=2,colour="grey") + xlab("Standard length (mm)") + ylab("Count")
+hp
+
+#Facet LF Chatham sound
+  
+  nrth$month<- factor(nrth$month, levels = c(7,9,10,11,2,3))
+hp + facet_grid(. ~ month, scales="free") + xlab("Standard length (mm)") + ylab("Count") 
 
 
 
+#Length-weight relationship (all surveys) Chatham sound
+  
+ggplot(nrth, aes(x =  length, y = weight, color = factor(sex))) + geom_point() + 
+  labs(color = "Sex") + labs(x="Standard length (mm)", y="Weight (g)")
+
+
+#plot maturities by month
+
+nrth$month<- factor(nrth$month, levels = c(7,9,10,11,2,3))
+ggplot(nrth, aes(x= maturity_code,  group=month)) + 
+  geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") +
+  
+  labs(y = "", fill="maturity") +
+  facet_grid(.~month) +
+  
+  scale_y_continuous(labels = scales::percent) + theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank())
+ fig.cap="Maturity state by month"
 
 # biomass table example
   
