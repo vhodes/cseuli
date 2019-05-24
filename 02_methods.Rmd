@@ -69,14 +69,14 @@ csasdown::csas_table(len_sum, align = c("c","c","r","r","r","r","r"), caption = 
 
 #Cumulative length-frequency (all surveys put together) Chatham Sound
  
-  ggplot(nrth, aes(x=length)) + geom_histogram(binwidth=1,colour="grey")
+   
 hp<-ggplot(nrth, aes(x=length)) + geom_histogram(binwidth=2,colour="grey") + xlab("Standard length (mm)") + ylab("Count")
 hp
 
 #Facet LF Chatham sound
   
   nrth$month<- factor(nrth$month, levels = c(7,9,10,11,2,3))
-hp + facet_grid(. ~ month, scales="free") + xlab("Standard length (mm)") + ylab("Count") 
+hp + facet_grid(. ~ month, scales="fixed") + xlab("Standard length (mm)") + ylab("Count") 
 
 
 
@@ -97,6 +97,52 @@ ggplot(nrth, aes(x= maturity_code,  group=month)) +
   
   scale_y_continuous(labels = scales::percent) + theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank())
  fig.cap="Maturity state by month"
+
+#summarize maturities this actually makes a table
+
+ 
+  #nrth    %>%
+   # filter(!is.na(maturity_code)) %>%
+    #mutate(stage = case_when(
+     # maturity_code ==0 ~ "immature",
+      #maturity_code ==3 ~ "maturing",
+      #maturity_code ==4 ~ "mature",
+      #maturity_code ==6 ~ "atypical",
+      #TRUE~"other")) %>%
+    
+  #group_by(month, year, stage) %>%
+   # count(.)
+   
+nrth    %>%
+   filter(!is.na(maturity_code)) %>%
+   mutate(stage = case_when(
+     maturity_code %in% c(0,1,2,7,8) ~ "immature",
+     maturity_code %in% c(3)~ "maturing",
+     maturity_code %in% c(4,5) ~ "mature",
+     maturity_code %in% c(6) ~ "atypical")) %>%
+   
+   group_by(month, year, stage) %>%
+   count(.)
+#single maturity plot
+ 
+ Joe2<-ggplot(Joe, aes(x=stage, fill=stage))+
+  geom_bar(aes(y = (..count..)/sum(..count..)*100)) +
+  Joe2
+    
+   Joe2 + facet_grid(.~month)
+  
+    
+ 
+ 
+ #different maturity plot sideways
+ 
+ ggplot( Joe, aes( x = stage, y = n, fill = month ) ) + 
+geom_bar( stat = "identity", position = "stack" ) +
+coord_flip() +
+scale_fill_brewer( palette = "YlGnBu" ) +
+theme_minimal() + theme( legend.position = "bottom" )
+
+ 
 
 # biomass table example
   
